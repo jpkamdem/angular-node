@@ -9,10 +9,10 @@ services:
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD", "curl", "http://localhost:3000/ping"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
+      test: ["CMD", "curl", "http://127.0.0.1:3000/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
       start_period: 30s
     networks:
       - bridge
@@ -23,6 +23,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8090:90"
+    healthcheck:
+      test: ["CMD", "curl", "http://127.0.0.1:90"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - bridge
 networks:
