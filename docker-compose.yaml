@@ -1,0 +1,30 @@
+services:
+  api:
+    container_name: api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:3000/ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    networks:
+      - bridge
+  web:
+    container_name: web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "8090:90"
+    networks:
+      - bridge
+networks:
+  bridge:
+    driver: bridge

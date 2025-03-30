@@ -1,0 +1,11 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+  background-color: oklch(0.33 0 187.41);
+  color: oklch(0.77 0 354);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
