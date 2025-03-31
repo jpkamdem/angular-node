@@ -12,9 +12,9 @@ RUN npm i
 
 RUN npm run build
 
-ENV PORT=3000
+ENV PORT=4500
 
-EXPOSE 3000
+EXPOSE 4500
 
 # CMD [ "pm2-runtime", "ecosystem.config.js" ]
 

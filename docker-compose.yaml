@@ -1,21 +1,61 @@
 services:
+  db:
+    container_name: db
+    image: postgres:16
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_URL: ${DATABASE_URL}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - bridge
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:8.14
+    env_file:
+      - .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - bridge
+    depends_on:
+      - db
   api:
     container_name: api
     build:
       context: ./api
       dockerfile: Dockerfile
     environment:
-      - NODE_ENV=production
+      NODE_ENV: production
     ports:
-      - "3000:3000"
+      - "4500:4500"
     healthcheck:
-      test: ["CMD", "curl", "http://127.0.0.1:3000/ping"]
+      test: ["CMD-SHELL", "curl --retry 5 --retry-delay 5 -f http://0.0.0.0:4500/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
     networks:
       - bridge
+    depends_on:
+      - db
   web:
     container_name: web
     build:
@@ -24,13 +64,19 @@ services:
     ports:
       - "8090:90"
     healthcheck:
-      test: ["CMD", "curl", "http://127.0.0.1:90"]
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:90"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
     networks:
       - bridge
+    depends_on:
+      - db
+      - api
+volumes:
+  db:
+  pgadmin:
 networks:
   bridge:
     driver: bridge
